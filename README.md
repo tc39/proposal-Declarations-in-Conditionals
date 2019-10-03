@@ -9,7 +9,7 @@ Stage: 1
 
 ## Overview
 
-When programming in C++, an extremely useful feature is to be able to declare a variable _and_ have it be evaluated inside a condional:
+When programming in C++, an extremely useful feature is to be able to declare a variable _and_ have it be evaluated inside a conditional:
 
 ```cpp
 if (auto* ptr = getPtr()) {
@@ -22,7 +22,7 @@ Adding this capability to JavaScript would be very useful for the following reas
  - finer-grain "control" over the visibility of the variable
  - allow authors to write performance-"safe" code without having to know the specific details of the code being called (see example below)
 
-In the case of JavaScript, however, there should be some limiations:
+In the case of JavaScript, however, there should be some limitations:
  - only using `let` and `const`
  - only for `if` and `while`
  - destructuring is not allowed (even if only a single variable is "pulled out"), as there's potential confusion as to what's actually being checked (the value vs. whether the desired key/index was present in the object/array)
@@ -73,7 +73,7 @@ if (let data = foo.data) {
 }
 ```
 
-which allows `foo.data` to only have to be evaluated once, and is much more stylisticly succinct.
+which allows `foo.data` to only have to be evaluated once, and is much more stylistically succinct.
 
 One could create another variable (e.g. `let data = foo.data;`), but that could potentially keep `foo.data` (via `data`) alive much longer than needed and would "pollute" the scope with an additional variable.
 
