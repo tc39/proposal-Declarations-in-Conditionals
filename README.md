@@ -5,7 +5,7 @@ ECMAScript proposal for allowing variable declarations inside conditional statem
 Authors:
  - Devin Rousso
 
-Stage: 0
+Stage: 1
 
 ## Overview
 
