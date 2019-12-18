@@ -22,7 +22,7 @@ Adding this capability to JavaScript would be very useful for the following reas
  - finer-grain "control" over the visibility of the variable
  - allow authors to write performance-"safe" code without having to know the specific details of the code being called (see example below)
 
-In the case of JavaScript, however, there should be some limiations:
+In the case of JavaScript, however, there should be some limitations:
  - only using `let` and `const`
  - only for `if` and `while`
  - destructuring is not allowed (even if only a single variable is "pulled out"), as there's potential confusion as to what's actually being checked (the value vs. whether the desired key/index was present in the object/array)
