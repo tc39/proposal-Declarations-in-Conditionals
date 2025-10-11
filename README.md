@@ -15,6 +15,10 @@ When programming in C++, an extremely useful feature is to be able to declare a 
 if (auto* ptr = getPtr()) {
     /* ... */
 }
+
+if (auto* ptr = getPtr(); ptr && ptr->value) {
+    /* ... */
+}
 ```
 
 Adding this capability to JavaScript would be very useful for the following reasons:
@@ -25,9 +29,8 @@ Adding this capability to JavaScript would be very useful for the following reas
 In the case of JavaScript, however, there should be some limitations:
  - only using `let` and `const`
  - only for `if` and `while`
- - destructuring is not allowed (even if only a single variable is "pulled out"), as there's potential confusion as to what's actually being checked (the value vs. whether the desired key/index was present in the object/array)
- 
-There would be no "new" syntax (it would be the same as declaring a single `let`/`const` variable, except without an ending semicolon) and the variable would only be visible inside the `if`/`while` block.
+ - only exposed in the `if` block (i.e. not in the `else`)
+ - comma separated list, destructuring, etc. require a second expression after a `;` to be provided in order to clarify what exactly is being tested
 
 ## Examples
 
@@ -137,19 +140,3 @@ but it wouldn't be _exactly_ the same due to the fact that the transpiled code w
 This is likely not that big of an issue, however, as this is probably pretty rare (most code tends to be written inside functions, which don't use the last evaluation result as the returned value) and any author/transpiler could just "fall back" to what's currently available (declare the variable outside the conditional).
 
 The bigger issue would be if any of the code inside `A` (and/or `B`, depending on the transpilation approach) has a `return`, as that would need to be propagated outside the wrapper function, which may involve other workarounds (e.g. a `Symbol` could differentiate between a generated value and a transpiled "path").
-
-## Future Work
-
-This could be extended to allowing multiple names to be initialized (such as through destructuring) with a "normal" conditional to be written after the assignment with a `;` (similar to a `for`).
-
-```js
-if (let x = 1, y = 2; x || y) {
-    /* ... */
-}
-```
-
-```js
-if (let {x, y} = data; x && y) {
-    /* ... */
-}
-```
