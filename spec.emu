@@ -13,3 +13,125 @@ contributors: Devin Rousso
   <h1>Introduction</h1>
   <p>This is the formal specification for a proposed extension of the `if` and `while` JavaScript control flow statements. It modifies the original <a href=https://tc39.es/ecma262/multipage/>ECMAScript specification</a> with several new or revised clauses. See <a href=https://github.com/tc39/proposal-Declarations-in-Conditionals/#readme>the proposal's explainer</a> for the proposal's background, motivation, and usage examples.</p>
 </emu-intro>
+
+<emu-clause id="sec-ecmascript-language-statements-and-declarations" number="14">
+  <h1>ECMAScript Language: Statements and Declarations</h1>
+
+  <emu-clause id="sec-if-statement" number="6">
+    <h1>The `if` Statement</h1>
+    <h2>Syntax</h2>
+    <emu-grammar type="definition">
+      IfStatement[Yield, Await, Return] :
+        `if` `(` <del>Expression[+In, ?Yield, ?Await]</del><ins>IfCondition[+In, ?Yield, ?Await]</ins> `)` Statement[?Yield, ?Await, ?Return] `else` Statement[?Yield, ?Await, ?Return]
+        `if` `(` <del>Expression[+In, ?Yield, ?Await]</del><ins>IfCondition[+In, ?Yield, ?Await]</ins> `)` Statement[?Yield, ?Await, ?Return] [lookahead != `else`]
+
+      <ins class="block">
+      IfCondition[In, Yield, Await] :
+        Expression[?In, ?Yield, ?Await]
+        LetOrConst BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
+        LexicalDeclaration[?In, ?Yield, ?Await] `;` Expression[?In, ?Yield, ?Await]
+      </ins>
+    </emu-grammar>
+    <emu-note>The lookahead-restriction [lookahead ≠ `else`] resolves the classic "dangling else" problem in the usual way. That is, when the choice of associated `if` is otherwise ambiguous, the `else` is associated with the nearest (innermost) of the candidate `if`s</emu-note>
+
+    <emu-clause id="sec-if-statement-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>IfStatement : `if` `(` <del>Expression</del><ins>IfCondition</ins> `)` Statement `else` Statement</emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if IsLabelledFunction(the first |Statement|) is *true*.
+        </li>
+        <li>
+          It is a Syntax Error if IsLabelledFunction(the second |Statement|) is *true*.
+        </li>
+      </ul>
+      <emu-grammar>IfStatement : `if` `(` <del>Expression</del><ins>IfCondition</ins> `)` Statement</emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if IsLabelledFunction(|Statement|) is *true*.
+        </li>
+      </ul>
+      <emu-note>
+        <p>It is only necessary to apply this rule if the extension specified in <emu-xref href="#sec-labelled-function-declarations"></emu-xref> is implemented.</p>
+      </emu-note>
+    </emu-clause>
+
+    <emu-clause id="sec-if-statement-runtime-semantics-evaluation" type="sdo">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-grammar>IfStatement : `if` `(` <del>Expression</del><ins>IfCondition</ins> `)` Statement `else` Statement</emu-grammar>
+      <emu-alg>
+        1. Let _exprRef_ be ? Evaluation of <del>|Expression|</del><ins>|IfCondition|</ins>.
+        1. Let _exprValue_ be ToBoolean(? GetValue(_exprRef_)).
+        1. If _exprValue_ is *true*, then
+          1. Let _stmtCompletion_ be Completion(Evaluation of the first |Statement|).
+        1. Else,
+          1. Let _stmtCompletion_ be Completion(Evaluation of the second |Statement|).
+        1. Return ? UpdateEmpty(_stmtCompletion_, *undefined*).
+      </emu-alg>
+      <emu-grammar>IfStatement : `if` `(` <del>Expression</del><ins>IfCondition</ins> `)` Statement</emu-grammar>
+      <emu-alg>
+        1. Let _exprRef_ be ? Evaluation of <del>|Expression|</del><ins>|IfCondition|</ins>.
+        1. Let _exprValue_ be ToBoolean(? GetValue(_exprRef_)).
+        1. If _exprValue_ is *false*, then
+          1. Return *undefined*.
+        1. Else,
+          1. Let _stmtCompletion_ be Completion(Evaluation of |Statement|).
+          1. Return ? UpdateEmpty(_stmtCompletion_, *undefined*).
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-iteration-statements">
+    <h1>Iteration Statements</h1>
+
+    <emu-clause id="sec-while-statement" number="3">
+      <h1>The `while` Statement</h1>
+      <h2>Syntax</h2>
+      <emu-grammar type="definition">
+        WhileStatement[Yield, Await, Return] :
+          `while` `(` <del>Expression[+In, ?Yield, ?Await]</del><ins>WhileCondition[+In, ?Yield, ?Await]</ins> `)` Statement[?Yield, ?Await, ?Return]
+
+        <ins class="block">
+        WhileCondition[In, Yield, Await] :
+          Expression[?In, ?Yield, ?Await]
+          LetOrConst BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
+          LexicalDeclaration[?In, ?Yield, ?Await] `;` Expression[?In, ?Yield, ?Await]
+        </ins>
+      </emu-grammar>
+
+      <emu-clause id="sec-while-statement-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>WhileStatement : `while` `(` <del>Expression</del><ins>WhileCondition</ins> `)` Statement</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if IsLabelledFunction(|Statement|) is *true*.
+          </li>
+        </ul>
+        <emu-note>
+          <p>It is only necessary to apply this rule if the extension specified in <emu-xref href="#sec-labelled-function-declarations"></emu-xref> is implemented.</p>
+        </emu-note>
+      </emu-clause>
+
+      <emu-clause id="sec-runtime-semantics-whileloopevaluation" oldids="sec-while-statement-runtime-semantics-labelledevaluation" type="sdo">
+        <h1>
+          Runtime Semantics: WhileLoopEvaluation (
+            _labelSet_: a List of Strings,
+          ): either a normal completion containing an ECMAScript language value or an abrupt completion
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-grammar>WhileStatement : `while` `(` <del>Expression</del><ins>WhileCondition</ins> `)` Statement</emu-grammar>
+        <emu-alg>
+          1. Let _V_ be *undefined*.
+          1. Repeat,
+            1. Let _exprRef_ be ? Evaluation of <del>|Expression|</del><ins>|WhileCondition|</ins>.
+            1. Let _exprValue_ be ? GetValue(_exprRef_).
+            1. If ToBoolean(_exprValue_) is *false*, return _V_.
+            1. Let _stmtResult_ be Completion(Evaluation of |Statement|).
+            1. If LoopContinues(_stmtResult_, _labelSet_) is *false*, return ? UpdateEmpty(_stmtResult_, _V_).
+            1. If _stmtResult_.[[Value]] is not ~empty~, set _V_ to _stmtResult_.[[Value]].
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
+</emu-clause>
