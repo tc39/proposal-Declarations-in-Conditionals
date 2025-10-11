@@ -1,0 +1,15 @@
+<!doctype html>
+<meta charset="utf8">
+<link rel="stylesheet" href="./spec.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
+<script src="./spec.js"></script>
+<pre class="metadata">
+title: Declarations in Conditionals
+stage: 1
+contributors: Devin Rousso
+</pre>
+
+<emu-intro id=introduction>
+  <h1>Introduction</h1>
+  <p>This is the formal specification for a proposed extension of the `if` and `while` JavaScript control flow statements. It modifies the original <a href=https://tc39.es/ecma262/multipage/>ECMAScript specification</a> with several new or revised clauses. See <a href=https://github.com/tc39/proposal-Declarations-in-Conditionals/#readme>the proposal's explainer</a> for the proposal's background, motivation, and usage examples.</p>
+</emu-intro>
