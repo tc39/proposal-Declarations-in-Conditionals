@@ -29,6 +29,7 @@ contributors: Devin Rousso
       IfCondition[In, Yield, Await] :
         Expression[?In, ?Yield, ?Await]
         LetOrConst BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
+        `using` [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
         LexicalDeclaration[?In, ?Yield, ?Await] `;` Expression[?In, ?Yield, ?Await]
       </ins>
     </emu-grammar>
@@ -95,6 +96,7 @@ contributors: Devin Rousso
         WhileCondition[In, Yield, Await] :
           Expression[?In, ?Yield, ?Await]
           LetOrConst BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
+          `using` [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
           LexicalDeclaration[?In, ?Yield, ?Await] `;` Expression[?In, ?Yield, ?Await]
         </ins>
       </emu-grammar>

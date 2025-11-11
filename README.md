@@ -27,7 +27,7 @@ Adding this capability to JavaScript would be very useful for the following reas
  - allow authors to write performance-"safe" code without having to know the specific details of the code being called (see example below)
 
 In the case of JavaScript, however, there should be some limitations:
- - only using `let` and `const`
+ - only using `let`, `const`, and `using`
  - only for `if` and `while`
  - only exposed in the `if` block (i.e. not in the `else`)
  - comma separated list, destructuring, etc. require a second expression after a `;` to be provided in order to clarify what exactly is being tested
