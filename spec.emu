@@ -12,6 +12,7 @@ contributors: Devin Rousso
 <emu-intro id=introduction>
   <h1>Introduction</h1>
   <p>This is the formal specification for a proposed extension of the `if` and `while` JavaScript control flow statements. It modifies the original <a href=https://tc39.es/ecma262/multipage/>ECMAScript specification</a> with several new or revised clauses. See <a href=https://github.com/tc39/proposal-Declarations-in-Conditionals/#readme>the proposal's explainer</a> for the proposal's background, motivation, and usage examples.</p>
+  <p>This proposal is specified against ECMAScript as extended by the <a href=https://github.com/tc39/proposal-explicit-resource-management>Explicit Resource Management proposal</a>.</p>
 </emu-intro>
 
 <emu-clause id="sec-ecmascript-language-statements-and-declarations" number="14">
@@ -30,6 +31,7 @@ contributors: Devin Rousso
         Expression[?In, ?Yield, ?Await]
         LetOrConst BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
         `using` [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
+        CoverAwaitExpressionAndAwaitUsingDeclarationHead[?Yield] [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
         LexicalDeclaration[?In, ?Yield, ?Await] `;` Expression[?In, ?Yield, ?Await]
       </ins>
     </emu-grammar>
@@ -97,6 +99,7 @@ contributors: Devin Rousso
           Expression[?In, ?Yield, ?Await]
           LetOrConst BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
           `using` [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
+          CoverAwaitExpressionAndAwaitUsingDeclarationHead[?Yield] [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
           LexicalDeclaration[?In, ?Yield, ?Await] `;` Expression[?In, ?Yield, ?Await]
         </ins>
       </emu-grammar>
