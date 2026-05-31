@@ -93,27 +93,165 @@ contributors: Devin Rousso
     </emu-clause>
     </ins>
 
+    <ins class="block">
+    <emu-clause id="sec-if-condition-static-semantics-isconstantdeclaration" type="sdo">
+      <h1>Static Semantics: IsConstantDeclaration</h1>
+      <emu-grammar>IfCondition : Expression</emu-grammar>
+      <emu-alg>
+        1. Return *false*.
+      </emu-alg>
+      <emu-grammar>IfCondition : LetOrConst BindingIdentifier Initializer</emu-grammar>
+      <emu-alg>
+        1. Return IsConstantDeclaration of |LetOrConst|.
+      </emu-alg>
+      <emu-grammar>
+        IfCondition :
+          `using` BindingIdentifier Initializer
+          CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
+      </emu-grammar>
+      <emu-alg>
+        1. Return *true*.
+      </emu-alg>
+      <emu-grammar>IfCondition : LexicalDeclaration `;` Expression</emu-grammar>
+      <emu-alg>
+        1. Return IsConstantDeclaration of |LexicalDeclaration|.
+      </emu-alg>
+    </emu-clause>
+    </ins>
+
+    <ins class="block">
+    <emu-clause id="sec-runtime-semantics-ifconditiondeclarationinstantiation" type="sdo">
+      <h1>
+        Runtime Semantics: IfConditionDeclarationInstantiation (
+          _env_: a Declarative Environment Record,
+        ): ~unused~
+      </h1>
+      <dl class="header">
+        <dt>description</dt>
+        <dd>It creates the bindings declared by |IfCondition| in _env_.</dd>
+      </dl>
+      <emu-grammar>IfCondition : Expression</emu-grammar>
+      <emu-alg>
+        1. Return ~unused~.
+      </emu-alg>
+      <emu-grammar>
+        IfCondition :
+          LetOrConst BindingIdentifier Initializer
+          `using` BindingIdentifier Initializer
+          CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
+          LexicalDeclaration `;` Expression
+      </emu-grammar>
+      <emu-alg>
+        1. Let _isConst_ be IsConstantDeclaration of |IfCondition|.
+        1. For each element _dn_ of the BoundNames of |IfCondition|, do
+          1. If _isConst_ is *true*, then
+            1. Perform ! _env_.CreateImmutableBinding(_dn_, *true*).
+          1. Else,
+            1. Perform ! _env_.CreateMutableBinding(_dn_, *false*).
+        1. Return ~unused~.
+      </emu-alg>
+    </emu-clause>
+    </ins>
+
     <emu-clause id="sec-if-statement-runtime-semantics-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
       <emu-grammar>IfStatement : `if` `(` <del>Expression</del><ins>IfCondition</ins> `)` Statement `else` Statement</emu-grammar>
       <emu-alg>
-        1. Let _exprRef_ be ? Evaluation of <del>|Expression|</del><ins>|IfCondition|</ins>.
-        1. Let _exprValue_ be ToBoolean(? GetValue(_exprRef_)).
+        1. <ins>Let _oldEnv_ be the running execution context's LexicalEnvironment.</ins>
+        1. <ins>If the BoundNames of |IfCondition| is not empty, then</ins>
+          1. <ins>Let _ifEnv_ be NewDeclarativeEnvironment(_oldEnv_).</ins>
+          1. <ins>Perform IfConditionDeclarationInstantiation of |IfCondition| with argument _ifEnv_.</ins>
+          1. <ins>Set the running execution context's LexicalEnvironment to _ifEnv_.</ins>
+        1. <ins>Else,</ins>
+          1. <ins>Let _ifEnv_ be _oldEnv_.</ins>
+        1. Let _exprRef_ be <ins>Completion(</ins>Evaluation of <del>|Expression|</del><ins>|IfCondition|)</ins>.
+        1. <ins>If _exprRef_ is a normal completion, set _exprRef_ to Completion(GetValue(_exprRef_.[[Value]])).</ins>
+        1. <ins>If _exprRef_ is an abrupt completion, then</ins>
+          1. <ins>If _ifEnv_ is not _oldEnv_, then</ins>
+            1. <ins>Set _exprRef_ to Completion(DisposeResources(_ifEnv_.[[DisposeCapability]], _exprRef_)).</ins>
+            1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
+          1. <ins>Return ? _exprRef_.</ins>
+        1. Let _exprValue_ be ToBoolean(<del>? GetValue(_exprRef_)</del><ins>_exprRef_.[[Value]]</ins>).
         1. If _exprValue_ is *true*, then
           1. Let _stmtCompletion_ be Completion(Evaluation of the first |Statement|).
+          1. <ins>If _ifEnv_ is not _oldEnv_, then</ins>
+            1. <ins>Set _stmtCompletion_ to Completion(DisposeResources(_ifEnv_.[[DisposeCapability]], _stmtCompletion_)).</ins>
+            1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
         1. Else,
+          1. <ins>If _ifEnv_ is not _oldEnv_, then</ins>
+            1. <ins>Let _disposeCompletion_ be Completion(DisposeResources(_ifEnv_.[[DisposeCapability]], NormalCompletion(*undefined*))).</ins>
+            1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
+            1. <ins>If _disposeCompletion_ is an abrupt completion, return ? _disposeCompletion_.</ins>
           1. Let _stmtCompletion_ be Completion(Evaluation of the second |Statement|).
         1. Return ? UpdateEmpty(_stmtCompletion_, *undefined*).
       </emu-alg>
       <emu-grammar>IfStatement : `if` `(` <del>Expression</del><ins>IfCondition</ins> `)` Statement</emu-grammar>
       <emu-alg>
-        1. Let _exprRef_ be ? Evaluation of <del>|Expression|</del><ins>|IfCondition|</ins>.
-        1. Let _exprValue_ be ToBoolean(? GetValue(_exprRef_)).
+        1. <ins>Let _oldEnv_ be the running execution context's LexicalEnvironment.</ins>
+        1. <ins>If the BoundNames of |IfCondition| is not empty, then</ins>
+          1. <ins>Let _ifEnv_ be NewDeclarativeEnvironment(_oldEnv_).</ins>
+          1. <ins>Perform IfConditionDeclarationInstantiation of |IfCondition| with argument _ifEnv_.</ins>
+          1. <ins>Set the running execution context's LexicalEnvironment to _ifEnv_.</ins>
+        1. <ins>Else,</ins>
+          1. <ins>Let _ifEnv_ be _oldEnv_.</ins>
+        1. Let _exprRef_ be <ins>Completion(</ins>Evaluation of <del>|Expression|</del><ins>|IfCondition|)</ins>.
+        1. <ins>If _exprRef_ is a normal completion, set _exprRef_ to Completion(GetValue(_exprRef_.[[Value]])).</ins>
+        1. <ins>If _exprRef_ is an abrupt completion, then</ins>
+          1. <ins>If _ifEnv_ is not _oldEnv_, then</ins>
+            1. <ins>Set _exprRef_ to Completion(DisposeResources(_ifEnv_.[[DisposeCapability]], _exprRef_)).</ins>
+            1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
+          1. <ins>Return ? _exprRef_.</ins>
+        1. Let _exprValue_ be ToBoolean(<del>? GetValue(_exprRef_)</del><ins>_exprRef_.[[Value]]</ins>).
         1. If _exprValue_ is *false*, then
+          1. <ins>If _ifEnv_ is not _oldEnv_, then</ins>
+            1. <ins>Perform ? DisposeResources(_ifEnv_.[[DisposeCapability]], NormalCompletion(*undefined*)).</ins>
+            1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
           1. Return *undefined*.
         1. Else,
           1. Let _stmtCompletion_ be Completion(Evaluation of |Statement|).
+          1. <ins>If _ifEnv_ is not _oldEnv_, then</ins>
+            1. <ins>Set _stmtCompletion_ to Completion(DisposeResources(_ifEnv_.[[DisposeCapability]], _stmtCompletion_)).</ins>
+            1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
           1. Return ? UpdateEmpty(_stmtCompletion_, *undefined*).
+      </emu-alg>
+      <emu-grammar>IfCondition : Expression</emu-grammar>
+      <emu-alg>
+        1. Return ? Evaluation of |Expression|.
+      </emu-alg>
+      <emu-grammar><ins>IfCondition : LetOrConst BindingIdentifier Initializer</ins></emu-grammar>
+      <emu-alg>
+        1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
+        1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
+        1. <ins>If IsAnonymousFunctionDefinition(|Initializer|) is *true*, then</ins>
+          1. <ins>Let _value_ be ? NamedEvaluation of |Initializer| with argument _bindingId_.</ins>
+        1. <ins>Else,</ins>
+          1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
+          1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
+        1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~normal~).</ins>
+        1. <ins>Return _value_.</ins>
+      </emu-alg>
+      <emu-grammar><ins>IfCondition : `using` BindingIdentifier Initializer</ins></emu-grammar>
+      <emu-alg>
+        1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
+        1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
+        1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
+        1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
+        1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~sync-dispose~).</ins>
+        1. <ins>Return _value_.</ins>
+      </emu-alg>
+      <emu-grammar><ins>IfCondition : CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer</ins></emu-grammar>
+      </emu-alg><emu-alg>
+        1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
+        1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
+        1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
+        1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
+        1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~async-dispose~).</ins>
+        1. <ins>Return _value_.</ins>
+      </emu-alg>
+      <emu-grammar><ins>IfCondition : LexicalDeclaration `;` Expression</ins></emu-grammar>
+      <emu-alg>
+        1. <ins>Perform ? Evaluation of |LexicalDeclaration|.</ins>
+        1. <ins>Return ? Evaluation of |Expression|.</ins>
       </emu-alg>
     </emu-clause>
   </emu-clause>
@@ -182,6 +320,66 @@ contributors: Devin Rousso
       </emu-clause>
       </ins>
 
+      <ins class="block">
+      <emu-clause id="sec-while-condition-static-semantics-isconstantdeclaration" type="sdo">
+        <h1>Static Semantics: IsConstantDeclaration</h1>
+        <emu-grammar>WhileCondition : Expression</emu-grammar>
+        <emu-alg>
+          1. Return *false*.
+        </emu-alg>
+        <emu-grammar>WhileCondition : LetOrConst BindingIdentifier Initializer</emu-grammar>
+        <emu-alg>
+          1. Return IsConstantDeclaration of |LetOrConst|.
+        </emu-alg>
+        <emu-grammar>
+          WhileCondition :
+            `using` BindingIdentifier Initializer
+            CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
+        </emu-grammar>
+        <emu-alg>
+          1. Return *true*.
+        </emu-alg>
+        <emu-grammar>WhileCondition : LexicalDeclaration `;` Expression</emu-grammar>
+        <emu-alg>
+          1. Return IsConstantDeclaration of |LexicalDeclaration|.
+        </emu-alg>
+      </emu-clause>
+      </ins>
+
+      <ins class="block">
+      <emu-clause id="sec-runtime-semantics-whileconditiondeclarationinstantiation" type="sdo">
+        <h1>
+          Runtime Semantics: WhileConditionDeclarationInstantiation (
+            _env_: a Declarative Environment Record,
+          ): ~unused~
+        </h1>
+        <dl class="header">
+          <dt>description</dt>
+          <dd>It creates the bindings declared by |WhileCondition| in _env_.</dd>
+        </dl>
+        <emu-grammar>WhileCondition : Expression</emu-grammar>
+        <emu-alg>
+          1. Return ~unused~.
+        </emu-alg>
+        <emu-grammar>
+          WhileCondition :
+            LetOrConst BindingIdentifier Initializer
+            `using` BindingIdentifier Initializer
+            CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
+            LexicalDeclaration `;` Expression
+        </emu-grammar>
+        <emu-alg>
+          1. Let _isConst_ be IsConstantDeclaration of |WhileCondition|.
+          1. For each element _dn_ of the BoundNames of |WhileCondition|, do
+            1. If _isConst_ is *true*, then
+              1. Perform ! _env_.CreateImmutableBinding(_dn_, *true*).
+            1. Else,
+              1. Perform ! _env_.CreateMutableBinding(_dn_, *false*).
+          1. Return ~unused~.
+        </emu-alg>
+      </emu-clause>
+      </ins>
+
       <emu-clause id="sec-runtime-semantics-whileloopevaluation" oldids="sec-while-statement-runtime-semantics-labelledevaluation" type="sdo">
         <h1>
           Runtime Semantics: WhileLoopEvaluation (
@@ -193,13 +391,74 @@ contributors: Devin Rousso
         <emu-grammar>WhileStatement : `while` `(` <del>Expression</del><ins>WhileCondition</ins> `)` Statement</emu-grammar>
         <emu-alg>
           1. Let _V_ be *undefined*.
+          1. <ins>Let _oldEnv_ be the running execution context's LexicalEnvironment.</ins>
+          1. <ins>Let _hasDeclarations_ be *false*.</ins>
+          1. <ins>If the BoundNames of |WhileCondition| is not empty, set _hasDeclarations_ to *true*.</ins>
           1. Repeat,
-            1. Let _exprRef_ be ? Evaluation of <del>|Expression|</del><ins>|WhileCondition|</ins>.
-            1. Let _exprValue_ be ? GetValue(_exprRef_).
-            1. If ToBoolean(_exprValue_) is *false*, return _V_.
+            1. <ins>If _hasDeclarations_ is *true*, then</ins>
+              1. <ins>Let _whileEnv_ be NewDeclarativeEnvironment(_oldEnv_).</ins>
+              1. <ins>Perform WhileConditionDeclarationInstantiation of |WhileCondition| with argument _whileEnv_.</ins>
+              1. <ins>Set the running execution context's LexicalEnvironment to _whileEnv_.</ins>
+            1. <ins>Else,</ins>
+              1. <ins>Let _whileEnv_ be _oldEnv_.</ins>
+            1. Let _exprRef_ be <ins>Completion(</ins>Evaluation of <del>|Expression|</del><ins>|WhileCondition|)</ins>.
+            1. <ins>If _exprRef_ is a normal completion, set _exprRef_ to Completion(GetValue(_exprRef_.[[Value]])).</ins>
+            1. <del>Let _exprValue_ be ? GetValue(_exprRef_).</del>
+            1. <ins>If _exprRef_ is an abrupt completion, then</ins>
+              1. <ins>If _whileEnv_ is not _oldEnv_, then</ins>
+                1. <ins>Set _exprRef_ to Completion(DisposeResources(_whileEnv_.[[DisposeCapability]], _exprRef_)).</ins>
+                1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
+              1. <ins>Return ? _exprRef_.</ins>
+            1. If <del>ToBoolean(_exprValue_) is *false*, return _V_</del><ins>ToBoolean(_exprRef_.[[Value]]) is *false*, then</ins>
+              1. <ins>If _whileEnv_ is not _oldEnv_, then</ins>
+                1. <ins>Perform ? DisposeResources(_whileEnv_.[[DisposeCapability]], NormalCompletion(*undefined*)).</ins>
+                1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
+              1. <ins>Return _V_.</ins>
             1. Let _stmtResult_ be Completion(Evaluation of |Statement|).
+            1. <ins>If _whileEnv_ is not _oldEnv_, then</ins>
+              1. <ins>Set _stmtResult_ to Completion(DisposeResources(_whileEnv_.[[DisposeCapability]], _stmtResult_)).</ins>
+              1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
             1. If LoopContinues(_stmtResult_, _labelSet_) is *false*, return ? UpdateEmpty(_stmtResult_, _V_).
             1. If _stmtResult_.[[Value]] is not ~empty~, set _V_ to _stmtResult_.[[Value]].
+        </emu-alg>
+        <emu-grammar>WhileCondition : Expression</emu-grammar>
+        <emu-alg>
+          1. Return ? Evaluation of |Expression|.
+        </emu-alg>
+        <emu-grammar><ins>WhileCondition : LetOrConst BindingIdentifier Initializer</ins></emu-grammar>
+        <emu-alg>
+          1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
+          1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
+          1. <ins>If IsAnonymousFunctionDefinition(|Initializer|) is *true*, then</ins>
+            1. <ins>Let _value_ be ? NamedEvaluation of |Initializer| with argument _bindingId_.</ins>
+          1. <ins>Else,</ins>
+            1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
+            1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
+          1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~normal~).</ins>
+          1. <ins>Return _value_.</ins>
+        </emu-alg>
+        <emu-grammar><ins>WhileCondition : `using` BindingIdentifier Initializer</ins></emu-grammar>
+        <emu-alg>
+          1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
+          1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
+          1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
+          1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
+          1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~sync-dispose~).</ins>
+          1. <ins>Return _value_.</ins>
+        </emu-alg>
+        <emu-grammar><ins>WhileCondition : CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer</ins></emu-grammar>
+        <emu-alg>
+          1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
+          1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
+          1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
+          1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
+          1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~async-dispose~).</ins>
+          1. <ins>Return _value_.</ins>
+        </emu-alg>
+        <emu-grammar><ins>WhileCondition : LexicalDeclaration `;` Expression</ins></emu-grammar>
+        <emu-alg>
+          1. <ins>Perform ? Evaluation of |LexicalDeclaration|.</ins>
+          1. <ins>Return ? Evaluation of |Expression|.</ins>
         </emu-alg>
       </emu-clause>
     </emu-clause>
