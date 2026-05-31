@@ -47,17 +47,51 @@ contributors: Devin Rousso
         <li>
           It is a Syntax Error if IsLabelledFunction(the second |Statement|) is *true*.
         </li>
+        <li>
+          <ins>It is a Syntax Error if any element of the BoundNames of |IfCondition| also occurs in the VarDeclaredNames of the first |Statement|.</ins>
+        </li>
       </ul>
       <emu-grammar>IfStatement : `if` `(` <del>Expression</del><ins>IfCondition</ins> `)` Statement</emu-grammar>
       <ul>
         <li>
           It is a Syntax Error if IsLabelledFunction(|Statement|) is *true*.
         </li>
+        <li>
+          <ins>It is a Syntax Error if any element of the BoundNames of |IfCondition| also occurs in the VarDeclaredNames of |Statement|.</ins>
+        </li>
       </ul>
       <emu-note>
-        <p>It is only necessary to apply this rule if the extension specified in <emu-xref href="#sec-labelled-function-declarations"></emu-xref> is implemented.</p>
+        <p>It is only necessary to apply <del>this rule</del><ins>the IsLabelledFunction rules</ins> if the extension specified in <emu-xref href="#sec-labelled-function-declarations"></emu-xref> is implemented.</p>
       </emu-note>
+      <ins>
+      <emu-note>
+          <p>The BoundNames of an |IfCondition| are scoped to the first |Statement|, so a `var` of the same name in second |Statement| would refer to a different variable. Disallowing this avoids the resulting ambiguity. The second |Statement| (the `else` branch, if it exists) is unaffected by these names and may freely contain a `var` of the same name.</p>
+      </emu-note>
+      </ins>
     </emu-clause>
+
+    <ins class="block">
+    <emu-clause id="sec-if-condition-static-semantics-boundnames" type="sdo">
+      <h1>Static Semantics: BoundNames</h1>
+      <emu-grammar>IfCondition : Expression</emu-grammar>
+      <emu-alg>
+        1. Return a new empty List.
+      </emu-alg>
+      <emu-grammar>
+        IfCondition :
+          LetOrConst BindingIdentifier Initializer
+          `using` BindingIdentifier Initializer
+          CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
+      </emu-grammar>
+      <emu-alg>
+        1. Return the BoundNames of |BindingIdentifier|.
+      </emu-alg>
+      <emu-grammar>IfCondition : LexicalDeclaration `;` Expression</emu-grammar>
+      <emu-alg>
+        1. Return the BoundNames of |LexicalDeclaration|.
+      </emu-alg>
+    </emu-clause>
+    </ins>
 
     <emu-clause id="sec-if-statement-runtime-semantics-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
@@ -111,11 +145,42 @@ contributors: Devin Rousso
           <li>
             It is a Syntax Error if IsLabelledFunction(|Statement|) is *true*.
           </li>
+          <li>
+            <ins>It is a Syntax Error if any element of the BoundNames of |WhileCondition| also occurs in the VarDeclaredNames of |Statement|.</ins>
+          </li>
         </ul>
         <emu-note>
-          <p>It is only necessary to apply this rule if the extension specified in <emu-xref href="#sec-labelled-function-declarations"></emu-xref> is implemented.</p>
+          <p>It is only necessary to apply <del>this rule</del><ins>the IsLabelledFunction rule</ins> if the extension specified in <emu-xref href="#sec-labelled-function-declarations"></emu-xref> is implemented.</p>
         </emu-note>
+        <ins>
+        <emu-note>
+          <p>The BoundNames of a |WhileCondition| are scoped to the |Statement|, so a `var` of the same name in the |Statement| would refer to a different variable. Disallowing this avoids the resulting ambiguity.</p>
+        </emu-note>
+        </ins>
       </emu-clause>
+
+      <ins class="block">
+      <emu-clause id="sec-while-condition-static-semantics-boundnames" type="sdo">
+        <h1>Static Semantics: BoundNames</h1>
+        <emu-grammar>WhileCondition : Expression</emu-grammar>
+        <emu-alg>
+          1. Return a new empty List.
+        </emu-alg>
+        <emu-grammar>
+          WhileCondition :
+            LetOrConst BindingIdentifier Initializer
+            `using` BindingIdentifier Initializer
+            CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
+        </emu-grammar>
+        <emu-alg>
+          1. Return the BoundNames of |BindingIdentifier|.
+        </emu-alg>
+        <emu-grammar>WhileCondition : LexicalDeclaration `;` Expression</emu-grammar>
+        <emu-alg>
+          1. Return the BoundNames of |LexicalDeclaration|.
+        </emu-alg>
+      </emu-clause>
+      </ins>
 
       <emu-clause id="sec-runtime-semantics-whileloopevaluation" oldids="sec-while-statement-runtime-semantics-labelledevaluation" type="sdo">
         <h1>
