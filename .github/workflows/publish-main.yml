@@ -14,7 +14,7 @@ jobs:
       name: 'nvm install lts/* && npm install'
       with:
         node-version: lts/*
-    - run: npm run build
+    - run: npm run build-loose
     - name: Publish to gh-pages
       uses: JamesIves/github-pages-deploy-action@v4
       with:
