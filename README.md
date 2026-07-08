@@ -7,6 +7,8 @@ Authors:
 
 Stage: 1
 
+[Candidate spec text](https://tc39.es/proposal-Declarations-in-Conditionals/) is available.
+
 ## Overview
 
 When programming in C++, an extremely useful feature is to be able to declare a variable _and_ have it be evaluated inside a conditional:
