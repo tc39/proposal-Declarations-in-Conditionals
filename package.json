@@ -14,8 +14,8 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@tc39/ecma262-biblio": "^2.1.2895",
-    "ecmarkup": "^21.3.0",
+    "@tc39/ecma262-biblio": "2.2.3120",
+    "ecmarkup": "^24.2.0",
     "jsdom": "^26.1.0",
     "parse5-html-rewriting-stream": "^7.1.0",
     "tmp": "^0.2.3"

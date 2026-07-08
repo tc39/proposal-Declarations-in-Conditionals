@@ -16,7 +16,7 @@ jobs:
       uses: ljharb/actions/node/install@main
       with:
         node-version: lts/*
-    - run: npm run build-loose
+    - run: npm run build
     - name: Save PR data
       env:
         PR: ${{ github.event.number }}

@@ -227,7 +227,7 @@ contributors: Devin Rousso
         1. <ins>Else,</ins>
           1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
           1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-        1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~normal~).</ins>
+        1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_).</ins>
         1. <ins>Return _value_.</ins>
       </emu-alg>
       <emu-grammar><ins>IfCondition : `using` BindingIdentifier Initializer</ins></emu-grammar>
@@ -236,7 +236,11 @@ contributors: Devin Rousso
         1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
         1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
         1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-        1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~sync-dispose~).</ins>
+        1. <ins>Assert: IsUnresolvableReference(_lhs_) is *false*.</ins>
+        1. <ins>Let _base_ be _lhs_.[[Base]].</ins>
+        1. <ins>Assert: _base_ is a Declarative Environment Record.</ins>
+        1. <ins>Perform ? AddDisposableResource(_base_.[[DisposableResourceStack]], _value_, ~sync-dispose~).</ins>
+        1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_).</ins>
         1. <ins>Return _value_.</ins>
       </emu-alg>
       <emu-grammar><ins>IfCondition : CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer</ins></emu-grammar>
@@ -245,7 +249,11 @@ contributors: Devin Rousso
         1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
         1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
         1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-        1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~async-dispose~).</ins>
+        1. <ins>Assert: IsUnresolvableReference(_lhs_) is *false*.</ins>
+        1. <ins>Let _base_ be _lhs_.[[Base]].</ins>
+        1. <ins>Assert: _base_ is a Declarative Environment Record.</ins>
+        1. <ins>Perform ? AddDisposableResource(_base_.[[DisposableResourceStack]], _value_, ~async-dispose~).</ins>
+        1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_).</ins>
         1. <ins>Return _value_.</ins>
       </emu-alg>
       <emu-grammar><ins>IfCondition : LexicalDeclaration `;` Expression</ins></emu-grammar>
@@ -434,7 +442,7 @@ contributors: Devin Rousso
           1. <ins>Else,</ins>
             1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
             1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-          1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~normal~).</ins>
+          1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_).</ins>
           1. <ins>Return _value_.</ins>
         </emu-alg>
         <emu-grammar><ins>WhileCondition : `using` BindingIdentifier Initializer</ins></emu-grammar>
@@ -443,7 +451,11 @@ contributors: Devin Rousso
           1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
           1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
           1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-          1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~sync-dispose~).</ins>
+          1. <ins>Assert: IsUnresolvableReference(_lhs_) is *false*.</ins>
+          1. <ins>Let _base_ be _lhs_.[[Base]].</ins>
+          1. <ins>Assert: _base_ is a Declarative Environment Record.</ins>
+          1. <ins>Perform ? AddDisposableResource(_base_.[[DisposableResourceStack]], _value_, ~sync-dispose~).</ins>
+          1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_).</ins>
           1. <ins>Return _value_.</ins>
         </emu-alg>
         <emu-grammar><ins>WhileCondition : CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer</ins></emu-grammar>
@@ -452,7 +464,11 @@ contributors: Devin Rousso
           1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
           1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
           1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-          1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_, ~async-dispose~).</ins>
+          1. <ins>Assert: IsUnresolvableReference(_lhs_) is *false*.</ins>
+          1. <ins>Let _base_ be _lhs_.[[Base]].</ins>
+          1. <ins>Assert: _base_ is a Declarative Environment Record.</ins>
+          1. <ins>Perform ? AddDisposableResource(_base_.[[DisposableResourceStack]], _value_, ~async-dispose~).</ins>
+          1. <ins>Perform ! InitializeReferencedBinding(_lhs_, _value_).</ins>
           1. <ins>Return _value_.</ins>
         </emu-alg>
         <emu-grammar><ins>WhileCondition : LexicalDeclaration `;` Expression</ins></emu-grammar>
