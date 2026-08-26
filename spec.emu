@@ -50,9 +50,6 @@ contributors: Devin Rousso
         <li>
           <ins>It is a Syntax Error if any element of the BoundNames of |IfCondition| also occurs in the VarDeclaredNames of the first |Statement|.</ins>
         </li>
-        <li>
-          <ins>It is a Syntax Error if any element of the BoundNames of |IfCondition| also occurs in the VarDeclaredNames of the second |Statement|.</ins>
-        </li>
       </ul>
       <emu-grammar>IfStatement : `if` `(` <del>Expression</del><ins>IfCondition</ins> `)` Statement</emu-grammar>
       <ul>
@@ -68,7 +65,7 @@ contributors: Devin Rousso
       </emu-note>
       <ins>
       <emu-note>
-          <p>The BoundNames of an |IfCondition| are scoped to both |Statement| alternatives. Disallowing a `var` of the same name in either |Statement| avoids the resulting ambiguity.</p>
+          <p>The BoundNames of an |IfCondition| are scoped to the first |Statement|, so a `var` of the same name in second |Statement| would refer to a different variable. Disallowing this avoids the resulting ambiguity. The second |Statement| (the `else` branch, if it exists) is unaffected by these names and may freely contain a `var` of the same name.</p>
       </emu-note>
       </ins>
     </emu-clause>
@@ -184,11 +181,7 @@ contributors: Devin Rousso
             1. <ins>Let _disposeCompletion_ be Completion(DisposeResources(_ifEnv_.[[DisposeCapability]], NormalCompletion(*undefined*))).</ins>
             1. <ins>Set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
             1. <ins>If _disposeCompletion_ is an abrupt completion, return ? _disposeCompletion_.</ins>
-            1. <ins>Let _elseEnv_ be NewDeclarativeEnvironment(_oldEnv_).</ins>
-            1. <ins>Perform IfConditionDeclarationInstantiation of |IfCondition| with argument _elseEnv_.</ins>
-            1. <ins>Set the running execution context's LexicalEnvironment to _elseEnv_.</ins>
           1. Let _stmtCompletion_ be Completion(Evaluation of the second |Statement|).
-          1. <ins>If _ifEnv_ is not _oldEnv_, set the running execution context's LexicalEnvironment to _oldEnv_.</ins>
         1. Return ? UpdateEmpty(_stmtCompletion_, *undefined*).
       </emu-alg>
       <emu-grammar>IfStatement : `if` `(` <del>Expression</del><ins>IfCondition</ins> `)` Statement</emu-grammar>
