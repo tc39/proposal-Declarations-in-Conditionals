@@ -82,6 +82,31 @@ which allows `foo.data` to only have to be evaluated once, and is much more styl
 
 One could create another variable (e.g. `let data = foo.data;`), but that could potentially keep `foo.data` (via `data`) alive much longer than needed and would "pollute" the scope with an additional variable.
 
+As another example, a non-`module` `<script>` needs an extra block to limit the scope of a temporary binding:
+
+```html
+<meta name="color-scheme" content="light dark">
+<script>
+{
+    const colorScheme = localStorage.getItem("color-scheme");
+    if (colorScheme) {
+        document.querySelector('meta[name="color-scheme"]').content = colorScheme;
+    }
+}
+</script>
+```
+
+which becomes unnecessary if we can move the declaration to the condition:
+
+```html
+<meta name="color-scheme" content="light dark">
+<script>
+if (const colorScheme = localStorage.getItem("color-scheme")) {
+    document.querySelector('meta[name="color-scheme"]').content = colorScheme;
+}
+</script>
+```
+
 ## Transpiler Support
 
 This can be transpiled using blocks and a generated label:
