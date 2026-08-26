@@ -84,7 +84,7 @@ One could create another variable (e.g. `let data = foo.data;`), but that could 
 
 ## Transpiler Support
 
-This can (mostly) be transpiled into
+This can be transpiled using blocks and a generated label:
 
 ```js
 class Foo {
@@ -96,49 +96,24 @@ class Foo {
 }
 
 let foo = new Foo;
-(() => {
+__if0: {
     {
         let data = foo.data;
         if (data) {
-            for (let item of data) {
-                /* A */
+            {
+                for (let item of data) {
+                    /* A */
+                }
             }
-            return;
+
+            break __if0;
         }
     }
 
-    /* B */
-})();
-```
-or
-
-```js
-class Foo {
-    get data() {
-        let result = [];
-        /* ... do some expensive work ... */
-        return result;
+    {
+        /* B */
     }
-}
-
-let foo = new Foo;
-let __test = () => {
-    let data = foo.data;
-    if (!data)
-        return false;
-
-    for (let item of data) {
-        /* A */
-    }
-    return true;
-};
-if (!__test()) {
-    /* B */
 }
 ```
 
-but it wouldn't be _exactly_ the same due to the fact that the transpiled code would change what the last evaluated value in the outer scope would be, thereby changing the evaluation result of the entire program.
-
-This is likely not that big of an issue, however, as this is probably pretty rare (most code tends to be written inside functions, which don't use the last evaluation result as the returned value) and any author/transpiler could just "fall back" to what's currently available (declare the variable outside the conditional).
-
-The bigger issue would be if any of the code inside `A` (and/or `B`, depending on the transpilation approach) has a `return`, as that would need to be propagated outside the wrapper function, which may involve other workarounds (e.g. a `Symbol` could differentiate between a generated value and a transpiled "path").
+Note that `__if0` represents a fresh label chosen by the transpiler so it cannot conflict with any label in the source.
