@@ -15,6 +15,19 @@ contributors: Devin Rousso
   <p>This proposal is specified against ECMAScript as extended by the <a href=https://github.com/tc39/proposal-explicit-resource-management>Explicit Resource Management proposal</a>.</p>
 </emu-intro>
 
+<emu-clause id="sec-ecmascript-language-lexical-grammar" number="12">
+  <h1>ECMAScript Language: Lexical Grammar</h1>
+
+  <emu-clause id="sec-automatic-semicolon-insertion" number="10">
+    <h1>Automatic Semicolon Insertion</h1>
+
+    <emu-clause id="sec-rules-of-automatic-semicolon-insertion" number="1" namespace="asi-rules">
+      <h1>Rules of Automatic Semicolon Insertion</h1>
+      <p>However, there is an additional overriding condition on the preceding rules: a semicolon is never inserted automatically if the semicolon would then be parsed as an empty statement or if that semicolon would become one of the two semicolons in the header of a <code>for</code> statement (see <emu-xref href="#sec-for-statement"></emu-xref>)<del>.</del><ins>, or if that semicolon would terminate the |LexicalDeclaration| in the |LexicalDeclaration| |Expression| alternative of |IfCondition| or |WhileCondition|.</ins></p>
+    </emu-clause>
+  </emu-clause>
+</emu-clause>
+
 <emu-clause id="sec-ecmascript-language-statements-and-declarations" number="14">
   <h1>ECMAScript Language: Statements and Declarations</h1>
 
@@ -28,13 +41,13 @@ contributors: Devin Rousso
 
       <ins class="block">
       IfCondition[In, Yield, Await] :
-        [lookahead != `let` `[`] Expression[?In, ?Yield, ?Await]
-        LetOrConst BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
-        `using` [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
-        CoverAwaitExpressionAndAwaitUsingDeclarationHead[?Yield] [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
-        LexicalDeclaration[?In, ?Yield, ?Await] `;` Expression[?In, ?Yield, ?Await]
+        Expression[?In, ?Yield, ?Await]
+        LexicalDeclaration[?In, ?Yield, ?Await] Expression[?In, ?Yield, ?Await]
       </ins>
     </emu-grammar>
+    <ins>
+    <emu-note>The |LexicalDeclaration| |Expression| alternative already has a `;` as part of the |LexicalDeclaration| which must be present in the source text and cannot be inserted by Automatic Semicolon Insertion.</emu-note>
+    </ins>
     <emu-note>The lookahead-restriction [lookahead ≠ `else`] resolves the classic "dangling else" problem in the usual way. That is, when the choice of associated `if` is otherwise ambiguous, the `else` is associated with the nearest (innermost) of the candidate `if`s</emu-note>
 
     <emu-clause id="sec-if-statement-static-semantics-early-errors">
@@ -77,16 +90,7 @@ contributors: Devin Rousso
       <emu-alg>
         1. Return a new empty List.
       </emu-alg>
-      <emu-grammar>
-        IfCondition :
-          LetOrConst BindingIdentifier Initializer
-          `using` BindingIdentifier Initializer
-          CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
-      </emu-grammar>
-      <emu-alg>
-        1. Return the BoundNames of |BindingIdentifier|.
-      </emu-alg>
-      <emu-grammar>IfCondition : LexicalDeclaration `;` Expression</emu-grammar>
+      <emu-grammar>IfCondition : LexicalDeclaration Expression</emu-grammar>
       <emu-alg>
         1. Return the BoundNames of |LexicalDeclaration|.
       </emu-alg>
@@ -100,19 +104,7 @@ contributors: Devin Rousso
       <emu-alg>
         1. Return *false*.
       </emu-alg>
-      <emu-grammar>IfCondition : LetOrConst BindingIdentifier Initializer</emu-grammar>
-      <emu-alg>
-        1. Return IsConstantDeclaration of |LetOrConst|.
-      </emu-alg>
-      <emu-grammar>
-        IfCondition :
-          `using` BindingIdentifier Initializer
-          CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
-      </emu-grammar>
-      <emu-alg>
-        1. Return *true*.
-      </emu-alg>
-      <emu-grammar>IfCondition : LexicalDeclaration `;` Expression</emu-grammar>
+      <emu-grammar>IfCondition : LexicalDeclaration Expression</emu-grammar>
       <emu-alg>
         1. Return IsConstantDeclaration of |LexicalDeclaration|.
       </emu-alg>
@@ -134,13 +126,7 @@ contributors: Devin Rousso
       <emu-alg>
         1. Return ~unused~.
       </emu-alg>
-      <emu-grammar>
-        IfCondition :
-          LetOrConst BindingIdentifier Initializer
-          `using` BindingIdentifier Initializer
-          CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
-          LexicalDeclaration `;` Expression
-      </emu-grammar>
+      <emu-grammar>IfCondition : LexicalDeclaration Expression</emu-grammar>
       <emu-alg>
         1. Let _isConst_ be IsConstantDeclaration of |IfCondition|.
         1. For each element _dn_ of the BoundNames of |IfCondition|, do
@@ -216,45 +202,7 @@ contributors: Devin Rousso
       <emu-alg>
         1. Return ? Evaluation of |Expression|.
       </emu-alg>
-      <emu-grammar><ins>IfCondition : LetOrConst BindingIdentifier Initializer</ins></emu-grammar>
-      <emu-alg>
-        1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
-        1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
-        1. <ins>If IsAnonymousFunctionDefinition(|Initializer|) is *true*, then</ins>
-          1. <ins>Let _value_ be ? NamedEvaluation of |Initializer| with argument _bindingId_.</ins>
-        1. <ins>Else,</ins>
-          1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
-          1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-        1. <ins>Perform ? InitializeReferencedBinding(_lhs_, _value_).</ins>
-        1. <ins>Return _value_.</ins>
-      </emu-alg>
-      <emu-grammar><ins>IfCondition : `using` BindingIdentifier Initializer</ins></emu-grammar>
-      <emu-alg>
-        1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
-        1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
-        1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
-        1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-        1. <ins>Assert: IsUnresolvableReference(_lhs_) is *false*.</ins>
-        1. <ins>Let _base_ be _lhs_.[[Base]].</ins>
-        1. <ins>Assert: _base_ is a Declarative Environment Record.</ins>
-        1. <ins>Perform ? AddDisposableResource(_base_.[[DisposableResourceStack]], _value_, ~sync-dispose~).</ins>
-        1. <ins>Perform ? InitializeReferencedBinding(_lhs_, _value_).</ins>
-        1. <ins>Return _value_.</ins>
-      </emu-alg>
-      <emu-grammar><ins>IfCondition : CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer</ins></emu-grammar>
-      </emu-alg><emu-alg>
-        1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
-        1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
-        1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
-        1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-        1. <ins>Assert: IsUnresolvableReference(_lhs_) is *false*.</ins>
-        1. <ins>Let _base_ be _lhs_.[[Base]].</ins>
-        1. <ins>Assert: _base_ is a Declarative Environment Record.</ins>
-        1. <ins>Perform ? AddDisposableResource(_base_.[[DisposableResourceStack]], _value_, ~async-dispose~).</ins>
-        1. <ins>Perform ? InitializeReferencedBinding(_lhs_, _value_).</ins>
-        1. <ins>Return _value_.</ins>
-      </emu-alg>
-      <emu-grammar><ins>IfCondition : LexicalDeclaration `;` Expression</ins></emu-grammar>
+      <emu-grammar><ins>IfCondition : LexicalDeclaration Expression</ins></emu-grammar>
       <emu-alg>
         1. <ins>Perform ? Evaluation of |LexicalDeclaration|.</ins>
         1. <ins>Return ? Evaluation of |Expression|.</ins>
@@ -274,13 +222,13 @@ contributors: Devin Rousso
 
         <ins class="block">
         WhileCondition[In, Yield, Await] :
-          [lookahead != `let` `[`] Expression[?In, ?Yield, ?Await]
-          LetOrConst BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
-          `using` [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
-          CoverAwaitExpressionAndAwaitUsingDeclarationHead[?Yield] [no LineTerminator here] BindingIdentifier[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
-          LexicalDeclaration[?In, ?Yield, ?Await] `;` Expression[?In, ?Yield, ?Await]
+          Expression[?In, ?Yield, ?Await]
+          LexicalDeclaration[?In, ?Yield, ?Await] Expression[?In, ?Yield, ?Await]
         </ins>
       </emu-grammar>
+      <ins>
+      <emu-note>The |LexicalDeclaration| |Expression| alternative already has a `;` as part of the |LexicalDeclaration| which must be present in the source text and cannot be inserted by Automatic Semicolon Insertion.</emu-note>
+      </ins>
 
       <emu-clause id="sec-while-statement-static-semantics-early-errors">
         <h1>Static Semantics: Early Errors</h1>
@@ -310,16 +258,7 @@ contributors: Devin Rousso
         <emu-alg>
           1. Return a new empty List.
         </emu-alg>
-        <emu-grammar>
-          WhileCondition :
-            LetOrConst BindingIdentifier Initializer
-            `using` BindingIdentifier Initializer
-            CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
-        </emu-grammar>
-        <emu-alg>
-          1. Return the BoundNames of |BindingIdentifier|.
-        </emu-alg>
-        <emu-grammar>WhileCondition : LexicalDeclaration `;` Expression</emu-grammar>
+        <emu-grammar>WhileCondition : LexicalDeclaration Expression</emu-grammar>
         <emu-alg>
           1. Return the BoundNames of |LexicalDeclaration|.
         </emu-alg>
@@ -333,19 +272,7 @@ contributors: Devin Rousso
         <emu-alg>
           1. Return *false*.
         </emu-alg>
-        <emu-grammar>WhileCondition : LetOrConst BindingIdentifier Initializer</emu-grammar>
-        <emu-alg>
-          1. Return IsConstantDeclaration of |LetOrConst|.
-        </emu-alg>
-        <emu-grammar>
-          WhileCondition :
-            `using` BindingIdentifier Initializer
-            CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
-        </emu-grammar>
-        <emu-alg>
-          1. Return *true*.
-        </emu-alg>
-        <emu-grammar>WhileCondition : LexicalDeclaration `;` Expression</emu-grammar>
+        <emu-grammar>WhileCondition : LexicalDeclaration Expression</emu-grammar>
         <emu-alg>
           1. Return IsConstantDeclaration of |LexicalDeclaration|.
         </emu-alg>
@@ -367,13 +294,7 @@ contributors: Devin Rousso
         <emu-alg>
           1. Return ~unused~.
         </emu-alg>
-        <emu-grammar>
-          WhileCondition :
-            LetOrConst BindingIdentifier Initializer
-            `using` BindingIdentifier Initializer
-            CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer
-            LexicalDeclaration `;` Expression
-        </emu-grammar>
+        <emu-grammar>WhileCondition : LexicalDeclaration Expression</emu-grammar>
         <emu-alg>
           1. Let _isConst_ be IsConstantDeclaration of |WhileCondition|.
           1. For each element _dn_ of the BoundNames of |WhileCondition|, do
@@ -430,45 +351,7 @@ contributors: Devin Rousso
         <emu-alg>
           1. Return ? Evaluation of |Expression|.
         </emu-alg>
-        <emu-grammar><ins>WhileCondition : LetOrConst BindingIdentifier Initializer</ins></emu-grammar>
-        <emu-alg>
-          1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
-          1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
-          1. <ins>If IsAnonymousFunctionDefinition(|Initializer|) is *true*, then</ins>
-            1. <ins>Let _value_ be ? NamedEvaluation of |Initializer| with argument _bindingId_.</ins>
-          1. <ins>Else,</ins>
-            1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
-            1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-          1. <ins>Perform ? InitializeReferencedBinding(_lhs_, _value_).</ins>
-          1. <ins>Return _value_.</ins>
-        </emu-alg>
-        <emu-grammar><ins>WhileCondition : `using` BindingIdentifier Initializer</ins></emu-grammar>
-        <emu-alg>
-          1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
-          1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
-          1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
-          1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-          1. <ins>Assert: IsUnresolvableReference(_lhs_) is *false*.</ins>
-          1. <ins>Let _base_ be _lhs_.[[Base]].</ins>
-          1. <ins>Assert: _base_ is a Declarative Environment Record.</ins>
-          1. <ins>Perform ? AddDisposableResource(_base_.[[DisposableResourceStack]], _value_, ~sync-dispose~).</ins>
-          1. <ins>Perform ? InitializeReferencedBinding(_lhs_, _value_).</ins>
-          1. <ins>Return _value_.</ins>
-        </emu-alg>
-        <emu-grammar><ins>WhileCondition : CoverAwaitExpressionAndAwaitUsingDeclarationHead BindingIdentifier Initializer</ins></emu-grammar>
-        <emu-alg>
-          1. <ins>Let _bindingId_ be the StringValue of |BindingIdentifier|.</ins>
-          1. <ins>Let _lhs_ be ! ResolveBinding(_bindingId_).</ins>
-          1. <ins>Let _rhs_ be ? Evaluation of |Initializer|.</ins>
-          1. <ins>Let _value_ be ? GetValue(_rhs_).</ins>
-          1. <ins>Assert: IsUnresolvableReference(_lhs_) is *false*.</ins>
-          1. <ins>Let _base_ be _lhs_.[[Base]].</ins>
-          1. <ins>Assert: _base_ is a Declarative Environment Record.</ins>
-          1. <ins>Perform ? AddDisposableResource(_base_.[[DisposableResourceStack]], _value_, ~async-dispose~).</ins>
-          1. <ins>Perform ? InitializeReferencedBinding(_lhs_, _value_).</ins>
-          1. <ins>Return _value_.</ins>
-        </emu-alg>
-        <emu-grammar><ins>WhileCondition : LexicalDeclaration `;` Expression</ins></emu-grammar>
+        <emu-grammar><ins>WhileCondition : LexicalDeclaration Expression</ins></emu-grammar>
         <emu-alg>
           1. <ins>Perform ? Evaluation of |LexicalDeclaration|.</ins>
           1. <ins>Return ? Evaluation of |Expression|.</ins>
